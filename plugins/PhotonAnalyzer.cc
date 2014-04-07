@@ -72,7 +72,11 @@ class PhotonAnalyzer : public edm::EDAnalyzer {
      TH1D *hist_photon_eta;
      TH1D *hist_matchphoton_eta;
      TGraphAsymmErrors *graph_purity_eta;
-     
+         
+     TH1D *hist_genphoton_nvtx;
+     TH1D *hist_matchgenphoton_nvtx;
+     TGraphAsymmErrors *graph_efficiency_nvtx;	
+      
      TH1D *hist_genphoton_pt;
      TH1D *hist_matchgenphoton_pt;
      TGraphAsymmErrors *graph_efficiency_pt;
@@ -84,8 +88,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer {
      TH1D *hist_rebin_matchgenphoton_pt; 
 
 
-     //ID Stuff 
-     TH1D *hist_matchphoton_nvtx;
+     //ID Stuff
+     
+     TH1D *hist_matchphoton_nvtx; 
      TH1D *hist_matchphoton_loose_nvtx;
      TH1D *hist_matchphoton_medium_nvtx;
      TH1D *hist_matchphoton_tight_nvtx;
@@ -180,12 +185,18 @@ hist_rebin_matchphoton_pt = fs->make<TH1D>("hist_rebin_matchphoton_pt","Match_Ph
  hist_genphoton_eta->Sumw2();
  hist_matchgenphoton_eta->Sumw2();
 
+ hist_genphoton_nvtx = fs->make<TH1D>("hist_genphoton_nvtx" , "Gen_Photon_nvtx" , 50 , 0 , 50 );
+ hist_matchgenphoton_nvtx = fs->make<TH1D>("hist_matchgenphoton_nvtx","Matched_Gen_Photon_nvtx",50,0,50);
+ hist_genphoton_nvtx->Sumw2();
+ hist_matchgenphoton_nvtx->Sumw2();
+
  graph_efficiency_pt = fs->make<TGraphAsymmErrors>();
  graph_efficiency_eta = fs->make<TGraphAsymmErrors>();
+ graph_efficiency_nvtx = fs->make<TGraphAsymmErrors>();
 
  graph_efficiency_pt->SetName("graph_effiency_pt");
  graph_efficiency_eta->SetName("graph_efficiency_eta");
-
+ graph_efficiency_nvtx->SetName("graph_efficiency_nvtx");
 
 //ID Stuff
 
@@ -318,6 +329,7 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
 		if (!barrel && (std::abs(genphoton->eta())< 1.5 || std::abs(genphoton->eta())>3.) ) continue;
                 hist_genphoton_pt->Fill(genphoton->pt());
                 hist_genphoton_eta->Fill(genphoton->eta());
+                hist_genphoton_nvtx->Fill(nVtx);
 		allgenphotons++;
 	}
 
@@ -426,6 +438,7 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
 	        if (!barrel && (std::abs(matchref.get()->eta())< 1.5 || std::abs(matchref.get()->eta())>3.) ) continue;
 		hist_matchgenphoton_pt->Fill(matchref.get()->pt());
                 hist_matchgenphoton_eta->Fill(matchref.get()->eta());
+		hist_matchgenphoton_nvtx->Fill(nVtx);
                 matchedgenphotons ++;
         }
 
@@ -469,6 +482,7 @@ hist_rebin_matchgenphoton_pt = (TH1D*) hist_matchgenphoton_pt->Rebin(33,"hist_re
 
 graph_efficiency_pt->Divide(hist_rebin_matchgenphoton_pt,hist_rebin_genphoton_pt);
 graph_efficiency_eta->Divide(hist_matchgenphoton_eta,hist_genphoton_eta);
+graph_efficiency_nvtx->Divide(hist_matchgenphoton_nvtx,hist_genphoton_nvtx);
 
 graph_id_efficiency_nvtx_loose->Divide(hist_matchphoton_loose_nvtx,hist_matchphoton_nvtx);
 graph_id_efficiency_nvtx_medium->Divide(hist_matchphoton_medium_nvtx,hist_matchphoton_nvtx);
