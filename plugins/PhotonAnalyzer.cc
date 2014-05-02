@@ -133,7 +133,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer {
      bool isTight;
     
      double nVtx;
-
+     virtual bool findHiggs(const reco::Candidate*);
 };
 
 //
@@ -275,6 +275,14 @@ PhotonAnalyzer::~PhotonAnalyzer()
 // member functions
 //
 
+
+bool PhotonAnalyzer::findHiggs(const reco::Candidate* part){
+	if (part->pdgId() == 25) return true;
+	else if (part->numberOfMothers() == 0) return false;
+	else return findHiggs(part->mother(0));
+
+}
+
 // ------------ method called for each event  ------------
 void
 PhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -360,10 +368,10 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
 	double neutralIso = std::max((*photons)[i].neutralHadronIso() - ((*rho_corr) * eA_neutral),0.);
 	double photonIso = std::max((*photons)[i].photonIso() - ((*rho_corr) * eA_photons),0.);
         
-	std::cout<<"charged Iso: "<< chargedIso<<std::endl;
-	std::cout<<"neutral Iso: "<< neutralIso<<std::endl;
-	std::cout<<"photon Iso: "<< photonIso<<std::endl;
-	std::cout<<"sigmaIetaIeta : "<< sigmaIetaIeta<<std::endl;
+       	//std::cout<<"charged Iso: "<< chargedIso<<std::endl;
+	//std::cout<<"neutral Iso: "<< neutralIso<<std::endl;
+	//std::cout<<"photon Iso: "<< photonIso<<std::endl;
+	//std::cout<<"sigmaIetaIeta : "<< sigmaIetaIeta<<std::endl;
 
  
         isLoose = false;
@@ -372,13 +380,13 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
  
 	if (barrel && passelectronveto && SingleTower && sigmaIetaIeta < 0.012 && chargedIso < 2.6 && neutralIso < (3.5 + 0.04 * (*photons)[i].pt()) && photonIso < (1.3 + (0.005 * (*photons)[i].pt()))){
 		isLoose = true;
-		std::cout<<"isLoose"<<std::endl;
+	//	std::cout<<"isLoose"<<std::endl;
 		if(sigmaIetaIeta < 0.011 && chargedIso < 1.5 && neutralIso < (1.0 + (0.04 * (*photons)[i].pt())) && photonIso < (0.7 + (0.005 * (*photons)[i].pt()))){
 			isMedium = true;
-			std::cout<<"isMedium"<<std::endl;
+	//		std::cout<<"isMedium"<<std::endl;
 			if (chargedIso < 0.7 && neutralIso < (0.4 + (0.04 * (*photons)[i].pt())) && photonIso < (0.5 + (0.005 * (*photons)[i].pt()))){
 				isTight = true;
-				std::cout<<"isTight"<<endl;
+	//			std::cout<<"isTight"<<endl;
 			}
 		}
 	}
@@ -389,7 +397,7 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
                         isMedium = true;
                         if (sigmaIetaIeta < 0.031 && chargedIso < 0.5 && neutralIso < (1.5 + (0.04 * (*photons)[i].pt())) && photonIso < (1. + (0.005 * (*photons)[i].pt()))){
                         isTight = true;
-			std::cout<<"isTight"<<endl;
+	//		std::cout<<"isTight"<<endl;
 
                         }
                 }
@@ -401,7 +409,11 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
 	RefToBase<reco::Photon> photonref = photons->refAt(i);
 	reco::Photon photon(*(photonref.get()));
 	reco::GenParticleRef matchref = (*mcMatchMap)[photonref];
-	if (matchref.isNonnull() && matchref.isAvailable()){
+	if (matchref.isNonnull() && matchref.isAvailable() && findHiggs(matchref.get()->mother(0))){
+	        //std::cout<<"last mother: " << matchref.get()->mother(matchref.get()->numberOfMothers()-1)->pdgId() <<endl;
+	        //std::cout<<"first mother: " << matchref.get()->mother(0)->pdgId() <<endl;
+		//std::cout<<"number of mothers :"<<matchref.get()->numberOfMothers()<<endl;
+
 		hist_matchphoton_pt->Fill(photon.pt());
 		hist_matchphoton_eta->Fill(photon.eta());
 		hist_matchphoton_nvtx->Fill(nVtx);
@@ -414,7 +426,7 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
 		if (isTight){ hist_matchphoton_tight_nvtx->Fill(nVtx);
 				hist_matchphoton_tight_pt->Fill(photon.pt());
 				hist_matchphoton_tight_eta->Fill(photon.eta());
-				std::cout<<"isTight"<<endl;
+	//			std::cout<<"isTight"<<endl;
 
 			    }				  
 		
