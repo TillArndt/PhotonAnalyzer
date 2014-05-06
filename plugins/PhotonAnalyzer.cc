@@ -89,7 +89,10 @@ class PhotonAnalyzer : public edm::EDAnalyzer {
 
 
      //ID Stuff
-     
+ 
+     TH1D *hist_photon_sietaieta;
+     TH1D *hist_photon_hadoverem;
+    
      TH1D *hist_matchphoton_nvtx; 
      TH1D *hist_matchphoton_loose_nvtx;
      TH1D *hist_matchphoton_medium_nvtx;
@@ -222,6 +225,12 @@ hist_rebin_matchphoton_pt = fs->make<TH1D>("hist_rebin_matchphoton_pt","Match_Ph
  hist_matchphoton_loose_eta->Sumw2();
  hist_matchphoton_medium_eta->Sumw2();
  hist_matchphoton_tight_eta->Sumw2();
+
+ hist_photon_sietaieta = fs->make<TH1D>("hist_photon_sietaieta","Photon sigmaIetaIeta",100,0,0.05);
+ hist_photon_hadoverem = fs->make<TH1D>("hist_photon_hadoverem","Photon hadoverem",100,0,0.005);
+ hist_photon_sietaieta->Sumw2();
+ hist_photon_hadoverem->Sumw2();
+
 
  graph_id_efficiency_nvtx_loose = fs->make<TGraphAsymmErrors>();
  graph_id_efficiency_nvtx_medium = fs->make<TGraphAsymmErrors>();
@@ -405,6 +414,9 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
 
         hist_photon_pt->Fill((*photons)[i].pt());
 	hist_photon_eta->Fill((*photons)[i].eta());
+        hist_photon_sietaieta->Fill(sigmaIetaIeta);
+        hist_photon_hadoverem->Fill((*photons)[i].hadronicOverEm());
+
         allphotons ++;
 	RefToBase<reco::Photon> photonref = photons->refAt(i);
 	reco::Photon photon(*(photonref.get()));
