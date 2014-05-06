@@ -92,7 +92,11 @@ class PhotonAnalyzer : public edm::EDAnalyzer {
  
      TH1D *hist_photon_sietaieta;
      TH1D *hist_photon_hadoverem;
-    
+     TH1D *hist_photon_chargediso;
+     TH1D *hist_photon_neutraliso;
+     TH1D *hist_photon_photoniso;
+
+ 
      TH1D *hist_matchphoton_nvtx; 
      TH1D *hist_matchphoton_loose_nvtx;
      TH1D *hist_matchphoton_medium_nvtx;
@@ -228,8 +232,14 @@ hist_rebin_matchphoton_pt = fs->make<TH1D>("hist_rebin_matchphoton_pt","Match_Ph
 
  hist_photon_sietaieta = fs->make<TH1D>("hist_photon_sietaieta","Photon sigmaIetaIeta",100,0,0.05);
  hist_photon_hadoverem = fs->make<TH1D>("hist_photon_hadoverem","Photon hadoverem",100,0,0.005);
+ hist_photon_chargediso = fs->make<TH1D>("hist_photon_chargediso","Photon Charged Iso",50,0,5);
+ hist_photon_neutraliso = fs->make<TH1D>("hist_photon_neutraliso","Photon Neutral Iso",50,0,5);
+ hist_photon_photoniso = fs->make<TH1D>("hist_photon_photoniso","Photon Photon Iso",50,0,5);
  hist_photon_sietaieta->Sumw2();
  hist_photon_hadoverem->Sumw2();
+ hist_photon_chargediso->Sumw2();
+ hist_photon_neutraliso->Sumw2();
+ hist_photon_photoniso->Sumw2();
 
 
  graph_id_efficiency_nvtx_loose = fs->make<TGraphAsymmErrors>();
@@ -358,21 +368,21 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
     //            std::cout<<" i "<<i;
 //	        std::cout<< " test pt "<<(*photons)[i].pt() <<std::endl;
         if((*photons)[i].pt()<15.) continue;
-        if(barrel && std::abs((*photons)[i].eta())> 1.479) continue;
-        if (!barrel && (std::abs((*photons)[i].eta())< 1.5 || std::abs((*photons)[i].eta())>3.) ) continue; 
+        if(barrel && std::abs((*photons)[i].superCluster()->eta())> 1.479) continue;
+        if (!barrel && (std::abs((*photons)[i].superCluster()->eta())< 1.5 || std::abs((*photons)[i].superCluster()->eta())>3.) ) continue; 
         bool passelectronveto = !ConversionTools::hasMatchedPromptElectron((*photons)[i].superCluster(), hElectrons, hConversions, beamspot.position());
 	bool SingleTower = ((*photons)[i].hadTowOverEm() < 0.05);
         double sigmaIetaIeta = (*photons)[i].sigmaIetaIeta();
 	double eA_charged = 0;
 	double eA_neutral= 0;
 	double eA_photons= 0;
-	if (std::abs((*photons)[i].eta())< 1.0) eA_charged = 0.012, eA_neutral = 0.030, eA_photons = 0.148 ;
-	else if (std::abs((*photons)[i].eta())> 1.0 && std::abs((*photons)[i].eta())< 1.479 ) eA_charged = 0.010, eA_neutral = 0.057, eA_photons = 0.130 ;
-	else if (std::abs((*photons)[i].eta())> 1.479 && std::abs((*photons)[i].eta())< 2.0 ) eA_charged = 0.014, eA_neutral = 0.039, eA_photons = 0.112 ;
-	else if (std::abs((*photons)[i].eta())> 2.0 && std::abs((*photons)[i].eta())< 2.2 ) eA_charged = 0.012, eA_neutral = 0.015, eA_photons = 0.216 ;
-	else if (std::abs((*photons)[i].eta())> 2.2 && std::abs((*photons)[i].eta())< 2.3 ) eA_charged = 0.016, eA_neutral = 0.024, eA_photons = 0.262 ;
-	else if (std::abs((*photons)[i].eta())> 2.3 && std::abs((*photons)[i].eta())< 2.4 ) eA_charged = 0.020, eA_neutral = 0.039, eA_photons = 0.260 ;
-	else if (std::abs((*photons)[i].eta())> 2.4 ) eA_charged = 0.012, eA_neutral = 0.072, eA_photons = 0.266 ; 
+	if (std::abs((*photons)[i].superCluster()->eta())< 1.0) eA_charged = 0.012, eA_neutral = 0.030, eA_photons = 0.148 ;
+	else if (std::abs((*photons)[i].superCluster()->eta())> 1.0 && std::abs((*photons)[i].superCluster()->eta())< 1.479 ) eA_charged = 0.010, eA_neutral = 0.057, eA_photons = 0.130 ;
+	else if (std::abs((*photons)[i].superCluster()->eta())> 1.479 && std::abs((*photons)[i].superCluster()->eta())< 2.0 ) eA_charged = 0.014, eA_neutral = 0.039, eA_photons = 0.112 ;
+	else if (std::abs((*photons)[i].superCluster()->eta())> 2.0 && std::abs((*photons)[i].superCluster()->eta())< 2.2 ) eA_charged = 0.012, eA_neutral = 0.015, eA_photons = 0.216 ;
+	else if (std::abs((*photons)[i].superCluster()->eta())> 2.2 && std::abs((*photons)[i].superCluster()->eta())< 2.3 ) eA_charged = 0.016, eA_neutral = 0.024, eA_photons = 0.262 ;
+	else if (std::abs((*photons)[i].superCluster()->eta())> 2.3 && std::abs((*photons)[i].superCluster()->eta())< 2.4 ) eA_charged = 0.020, eA_neutral = 0.039, eA_photons = 0.260 ;
+	else if (std::abs((*photons)[i].superCluster()->eta())> 2.4 ) eA_charged = 0.012, eA_neutral = 0.072, eA_photons = 0.266 ; 
 	double chargedIso = std::max((*photons)[i].chargedHadronIso() - ((*rho_corr) * eA_charged),0.);
 	double neutralIso = std::max((*photons)[i].neutralHadronIso() - ((*rho_corr) * eA_neutral),0.);
 	double photonIso = std::max((*photons)[i].photonIso() - ((*rho_corr) * eA_photons),0.);
@@ -414,8 +424,6 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
 
         hist_photon_pt->Fill((*photons)[i].pt());
 	hist_photon_eta->Fill((*photons)[i].eta());
-        hist_photon_sietaieta->Fill(sigmaIetaIeta);
-        hist_photon_hadoverem->Fill((*photons)[i].hadronicOverEm());
 
         allphotons ++;
 	RefToBase<reco::Photon> photonref = photons->refAt(i);
@@ -425,8 +433,13 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
 	        //std::cout<<"last mother: " << matchref.get()->mother(matchref.get()->numberOfMothers()-1)->pdgId() <<endl;
 	        //std::cout<<"first mother: " << matchref.get()->mother(0)->pdgId() <<endl;
 		//std::cout<<"number of mothers :"<<matchref.get()->numberOfMothers()<<endl;
-
-		hist_matchphoton_pt->Fill(photon.pt());
+                hist_photon_sietaieta->Fill(sigmaIetaIeta);
+                hist_photon_hadoverem->Fill((*photons)[i].hadTowOverEm());
+                hist_photon_neutraliso->Fill(neutralIso);
+                hist_photon_chargediso->Fill(chargedIso);
+                hist_photon_photoniso->Fill(photonIso);
+ 
+ 		hist_matchphoton_pt->Fill(photon.pt());
 		hist_matchphoton_eta->Fill(photon.eta());
 		hist_matchphoton_nvtx->Fill(nVtx);
 		if (isLoose){ hist_matchphoton_loose_nvtx->Fill(nVtx);
