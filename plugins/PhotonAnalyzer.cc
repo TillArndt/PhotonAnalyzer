@@ -352,8 +352,8 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
  		
 	if (genphoton->pdgId() ==22 && genphoton->status()==1){
 		if(genphoton->pt()<=15.) continue;
-		if(barrel && std::abs(genphoton->eta())> 1.479) continue;
-		if (!barrel && (std::abs(genphoton->eta())< 1.5 || std::abs(genphoton->eta())>3.) ) continue;
+		if(barrel && std::abs(genphoton->eta())> 1.4442) continue;
+		if (!barrel && (std::abs(genphoton->eta())< 1.566 || std::abs(genphoton->eta())>2.5) ) continue;
                 hist_genphoton_pt->Fill(genphoton->pt());
                 hist_genphoton_eta->Fill(genphoton->eta());
                 hist_genphoton_nvtx->Fill(nVtx);
@@ -368,8 +368,8 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
     //            std::cout<<" i "<<i;
 //	        std::cout<< " test pt "<<(*photons)[i].pt() <<std::endl;
         if((*photons)[i].pt()<15.) continue;
-        if(barrel && std::abs((*photons)[i].superCluster()->eta())> 1.479) continue;
-        if (!barrel && (std::abs((*photons)[i].superCluster()->eta())< 1.5 || std::abs((*photons)[i].superCluster()->eta())>3.) ) continue; 
+        if(barrel && std::abs((*photons)[i].superCluster()->eta())> 1.4442) continue;
+        if (!barrel && (std::abs((*photons)[i].superCluster()->eta())< 1.566 || std::abs((*photons)[i].superCluster()->eta())>2.5) ) continue; 
         bool passelectronveto = !ConversionTools::hasMatchedPromptElectron((*photons)[i].superCluster(), hElectrons, hConversions, beamspot.position());
 	bool SingleTower = ((*photons)[i].hadTowOverEm() < 0.05);
         double sigmaIetaIeta = (*photons)[i].sigmaIetaIeta();
@@ -423,7 +423,7 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
         }
 
         hist_photon_pt->Fill((*photons)[i].pt());
-	hist_photon_eta->Fill((*photons)[i].eta());
+	hist_photon_eta->Fill((*photons)[i].superCluster()->eta());
 
         allphotons ++;
 	RefToBase<reco::Photon> photonref = photons->refAt(i);
@@ -440,17 +440,17 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
                 hist_photon_photoniso->Fill(photonIso);
  
  		hist_matchphoton_pt->Fill(photon.pt());
-		hist_matchphoton_eta->Fill(photon.eta());
+		hist_matchphoton_eta->Fill(photon.superCluster()->eta());
 		hist_matchphoton_nvtx->Fill(nVtx);
 		if (isLoose){ hist_matchphoton_loose_nvtx->Fill(nVtx);
 			 hist_matchphoton_loose_pt->Fill(photon.pt());
-			hist_matchphoton_loose_eta->Fill(photon.eta());}
+			hist_matchphoton_loose_eta->Fill(photon.superCluster()->eta());}
 		if (isMedium){ hist_matchphoton_medium_nvtx->Fill(nVtx);
 				 hist_matchphoton_medium_pt->Fill(photon.pt());
-				 hist_matchphoton_medium_eta->Fill(photon.eta());}
+				 hist_matchphoton_medium_eta->Fill(photon.superCluster()->eta());}
 		if (isTight){ hist_matchphoton_tight_nvtx->Fill(nVtx);
 				hist_matchphoton_tight_pt->Fill(photon.pt());
-				hist_matchphoton_tight_eta->Fill(photon.eta());
+				hist_matchphoton_tight_eta->Fill(photon.superCluster()->eta());
 	//			std::cout<<"isTight"<<endl;
 
 			    }				  
@@ -463,16 +463,16 @@ for(edm::View<reco::GenParticle>::const_iterator genphoton = genphotons->begin()
     //            std::cout<<" i "<<i;
 //              std::cout<< " test pt "<<(*photons)[i].pt() <<std::endl;
         if((*photons)[i].pt()<=15.) continue;
-        if(barrel && std::abs((*photons)[i].eta())> 1.479) continue;
-        if (!barrel && (std::abs((*photons)[i].eta())< 1.5 || std::abs((*photons)[i].eta()>3.)) ) continue;
+        if(barrel && std::abs((*photons)[i].eta())> 1.4442) continue;
+        if (!barrel && (std::abs((*photons)[i].eta())< 1.566 || std::abs((*photons)[i].eta()>2.5)) ) continue;
 
         RefToBase<reco::Photon> photonref = photons->refAt(i);
         reco::Photon photon(*(photonref.get()));
         reco::GenParticleRef matchref = (*mcGenMatchMap)[photonref];
         if (matchref.isNonnull() && matchref.isAvailable()){
 	        if(matchref.get()->pt()<=15.) continue;
-                if(barrel && std::abs(matchref.get()->eta())> 1.479) continue;
-	        if (!barrel && (std::abs(matchref.get()->eta())< 1.5 || std::abs(matchref.get()->eta())>3.) ) continue;
+                if(barrel && std::abs(matchref.get()->eta())> 1.4442) continue;
+	        if (!barrel && (std::abs(matchref.get()->eta())< 1.566 || std::abs(matchref.get()->eta())>2.5) ) continue;
 		hist_matchgenphoton_pt->Fill(matchref.get()->pt());
                 hist_matchgenphoton_eta->Fill(matchref.get()->eta());
 		hist_matchgenphoton_nvtx->Fill(nVtx);
